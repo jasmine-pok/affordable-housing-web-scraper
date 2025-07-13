@@ -11,14 +11,18 @@ import json
 
 def scrape_static_listings(url):
     response = requests.get(url)
+    
+    with open("scraper/craigslist_raw.html", "w", encoding="utf-8") as f:
+        f.write(response.text)
+    
     soup = BeautifulSoup(response.text, 'html.parser')
 
     listings = []
-    for post in soup.find_all('li', class_='result-row'):
+    for post in soup.select('li.cl-static-search-result')[:5]:
         try:
-            title = post.find('a', class_='result-title').text
-            price = post.find('span', class_='result-price').text
-            link = post.find('a', class_='result-title')['href']
+            title = post.find('div', class_='title').text.strip()
+            price = post.find('div', class_='price').text.strip()
+            link = post.find('a')['href']
 
             listings.append({
                 "title" : title,
